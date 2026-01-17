@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Mutlu Yıllar!</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: radial-gradient(circle, #1a1a2e 0%, #0a0a0a 100%);
+            overflow: hidden;
+            font-family: 'Arial Black', sans-serif;
+            flex-direction: column;
+        }
+
+        .birthday-text {
+            font-size: 4.5em;
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            margin-bottom: 10px;
+            z-index: 100;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #fff, 0 0 20px #ffd700; }
+            to { text-shadow: 0 0 20px #fff, 0 0 40px #ffd700; }
+        }
+
+        /* Arka plansız görselin keman çalma animasyonu */
+        .character-container {
+            position: relative;
+            z-index: 50;
+            display: flex;
+            justify-content: center;
+        }
+
+        .main-img {
+            width: 400px; /* Boyutu dilediğin gibi ayarla */
+            filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.3));
+            animation: playViolin 1.2s ease-in-out infinite;
+            transform-origin: bottom center;
+        }
+
+        @keyframes playViolin {
+            0% { transform: rotate(-1deg) scale(1); }
+            50% { transform: rotate(1deg) scale(1.02) translateY(-5px); }
+            100% { transform: rotate(-1deg) scale(1); }
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="birthday-text">İYİ Kİ DOĞDUN VİVALDİ!</div>
+    
+    <div class="character-container">
+        <img src="Keman.png" class="main-img" onerror="this.alt='Keman.png bulunamadı! Arka plansız görseli klasöre ekleyin.'">
+    </div>
+    
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particles = [];
+        let snowflakes = [];
+
+        class Snowflake {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * -canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speed = Math.random() * 1.5 + 0.5;
+                this.opacity = Math.random();
+            }
+            update() {
+                this.y += this.speed;
+                if (this.y > canvas.height) this.reset();
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        class Firework {
+            constructor(x, y, color) {
+                this.x = x; this.y = y; this.color = color;
+                this.velocity = { x: Math.random() * 4 - 2, y: Math.random() * 4 - 2 };
+                this.alpha = 1;
+            }
+            draw() {
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            update() {
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+                this.alpha -= 0.012;
+            }
+        }
+
+        for (let i = 0; i < 150; i++) snowflakes.push(new Snowflake());
+
+        function animate() {
+            ctx.fillStyle = 'rgba(10, 10, 10, 0.2)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            snowflakes.forEach(s => { s.update(); s.draw(); });
+
+            if (Math.random() < 0.05) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * (canvas.height/1.5);
+                const color = `hsl(${Math.random() * 360}, 100%, 60%)`;
+                for(let i=0; i<40; i++) particles.push(new Firework(x, y, color));
+            }
+
+            particles.forEach((p, i) => {
+                if (p.alpha > 0) { p.update(); p.draw(); }
+                else { particles.splice(i, 1); }
+            });
+
+            requestAnimationFrame(animate);
+        }
+        animate();
+        window.onresize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+    </script>
+</body>
+</html>
