@@ -11,7 +11,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center; /* Öğeleri dikeyde ortalar */
+            justify-content: center;
             min-height: 100vh;
             margin: 0;
             background: radial-gradient(circle, #1a1a2e 0%, #0a0a0a 100%);
@@ -21,7 +21,7 @@
             text-align: center;
         }
 
-        /* Görsel Alanı - En Üstte */
+        /* Görsel En Üstte */
         .character-container {
             position: relative;
             z-index: 50;
@@ -33,16 +33,15 @@
         }
 
         .main-img {
-            width: 60vw; /* Mobilde genişliğin %60'ı */
-            max-width: 280px; /* Bilgisayarda çok devleşmesin */
+            width: 55vw; 
+            max-width: 260px;
             height: auto;
             filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.4));
             animation: playViolin 1.2s ease-in-out infinite;
         }
 
-        /* Başlık Yazısı */
         .birthday-text {
-            font-size: clamp(1.4em, 8vw, 3.5em);
+            font-size: clamp(1.4em, 8vw, 3.2em);
             color: #FFD700;
             text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
             margin: 10px 0;
@@ -50,10 +49,9 @@
             animation: glow 2s ease-in-out infinite alternate;
         }
 
-        /* Yeni Mesaj - Başta Gizli */
         .final-message {
             display: none;
-            font-size: clamp(1.6em, 9vw, 4em);
+            font-size: clamp(1.5em, 9vw, 3.5em);
             color: #00FFCC;
             text-shadow: 0 0 25px #00FFCC;
             margin: 15px 0;
@@ -76,10 +74,10 @@
             100% { transform: rotate(-1.5deg); }
         }
 
-        /* Etkileşim Buton ve Pasta */
         .action-area {
-            min-height: 120px; /* Pasta çıkınca ekran kaymasın diye yer ayırıyoruz */
+            min-height: 130px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 100;
@@ -98,16 +96,17 @@
 
         .cake-container {
             display: none;
-            font-size: clamp(60px, 15vw, 90px);
+            font-size: clamp(60px, 18vw, 90px);
             cursor: pointer;
+            line-height: 1;
         }
 
         .hint {
             font-size: 14px;
             color: #fff;
             font-family: sans-serif;
-            margin-top: 5px;
-            opacity: 0.7;
+            margin-top: 10px;
+            opacity: 0.8;
         }
 
         canvas {
@@ -121,7 +120,7 @@
 <body>
 
     <div class="character-container">
-        <img src="keeman.png" class="main-img" onerror="this.alt='Görsel Bekleniyor...'">
+        <img src="keeman.png" class="main-img" onerror="this.alt='Vivaldi Görseli'">
     </div>
 
     <div class="birthday-text" id="top-title">İYİ Kİ DOĞDUN VİVALDİ!</div>
@@ -129,10 +128,9 @@
 
     <div class="action-area">
         <button id="action-btn" onclick="showCake()">Pastayı Getir! 🎂</button>
-        
         <div class="cake-container" id="cake" onclick="blowCandle()">
             🎂
-            <div class="hint">Üflemek için dokun!</div>
+            <div class="hint" id="cake-hint">Üflemek için dokun!</div>
         </div>
     </div>
 
@@ -151,7 +149,8 @@
 
         let snowflakes = [];
         let confettis = [];
-        let isCelebrating = false;
+        let fireworks = [];
+        let isBlown = false;
 
         function showCake() {
             document.getElementById('action-btn').style.display = 'none';
@@ -159,11 +158,13 @@
         }
 
         function blowCandle() {
+            isBlown = true;
             document.getElementById('top-title').style.display = 'none';
-            document.getElementById('cake').innerHTML = "🍰<div class='hint'>Dileğin kabul oldu!</div>";
+            document.getElementById('cake').innerHTML = "🍰";
             document.getElementById('final-msg').style.display = 'block';
-            isCelebrating = true;
-            for(let i=0; i<80; i++) confettis.push(new Confetti());
+            
+            // Büyük Konfeti Patlaması
+            for(let i=0; i<150; i++) confettis.push(new Confetti());
         }
 
         class Snowflake {
@@ -172,51 +173,57 @@
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * -canvas.height;
                 this.size = Math.random() * 2 + 1;
-                this.speed = Math.random() * 0.8 + 0.3;
+                this.speed = Math.random() * 0.5 + 0.2;
             }
             update() {
                 this.y += this.speed;
                 if (this.y > canvas.height) this.reset();
             }
             draw() {
-                ctx.fillStyle = "white"; // Kar taneleri beyaz
+                ctx.fillStyle = "white";
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
             }
         }
 
+        class Firework {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * (canvas.height / 2);
+                this.color = `hsl(${Math.random() * 360}, 100%, 60%)`;
+                this.particles = [];
+                for(let i=0; i<30; i++) {
+                    this.particles.push({
+                        x: this.x, y: this.y,
+                        vx: Math.random() * 4 - 2,
+                        vy: Math.random() * 4 - 2,
+                        alpha: 1
+                    });
+                }
+            }
+            update() {
+                this.particles.forEach(p => {
+                    p.x += p.vx; p.y += p.vy;
+                    p.alpha -= 0.015;
+                });
+            }
+            draw() {
+                this.particles.forEach(p => {
+                    if(p.alpha > 0) {
+                        ctx.globalAlpha = p.alpha;
+                        ctx.fillStyle = this.color;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                });
+                ctx.globalAlpha = 1;
+            }
+        }
+
         class Confetti {
             constructor() {
                 this.x = Math.random() * canvas.width;
-                this.y = Math.random() * -20;
-                this.size = Math.random() * 7 + 4;
-                this.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
-                this.speed = Math.random() * 3 + 2;
-                this.drift = Math.random() * 2 - 1;
-            }
-            update() {
-                this.y += this.speed;
-                this.x += this.drift;
-                if (this.y > canvas.height) this.y = -20;
-            }
-            draw() {
-                ctx.fillStyle = this.color;
-                ctx.fillRect(this.x, this.y, this.size, this.size/2);
-            }
-        }
-
-        for (let i = 0; i < 60; i++) snowflakes.push(new Snowflake());
-
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            snowflakes.forEach(s => { s.update(); s.draw(); });
-            if(isCelebrating) {
-                confettis.forEach(c => { c.update(); c.draw(); });
-            }
-            requestAnimationFrame(animate);
-        }
-        animate();
-    </script>
-</body>
-</html>
+                this.y = Math.random() * -50;
+                this.size = Math.random() * 8
