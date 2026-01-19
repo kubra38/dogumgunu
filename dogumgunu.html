@@ -2,73 +2,62 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mutlu Yıllar Vivaldi!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mutlu Yıllar!</title>
     <style>
-        * { box-sizing: border-box; }
-
         body {
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            justify-content: space-between; /* Öğeleri yukarıdan aşağıya yayar */
             min-height: 100vh;
             margin: 0;
             background: radial-gradient(circle, #1a1a2e 0%, #0a0a0a 100%);
             overflow: hidden;
             font-family: 'Arial Black', sans-serif;
-            padding: 20px 10px; /* Kenarlardan ve üstten güvenli alan */
+            flex-direction: column;
+            padding: 20px;
             text-align: center;
         }
 
-        .header-section {
-            z-index: 100;
-            width: 100%;
-        }
-
-        .birthday-text {
-            font-size: clamp(1.5em, 7vw, 3.5em);
-            color: #FFD700;
-            text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
-            margin: 0;
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-
-        .character-section {
-            flex-grow: 1; /* Ortadaki görselin esnemesini sağlar */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 50;
-            width: 100%;
-            padding: 20px 0;
-        }
-
+        /* Görsel artık en üstte */
         .character-container {
-            animation: softZoom 8s ease-in-out infinite alternate;
+            position: relative;
+            z-index: 50;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            animation: softZoom 10s ease-in-out infinite alternate;
         }
 
         .main-img {
-            width: 55vw; 
-            max-width: 250px; /* Mobilde çok devasa olmasın */
-            height: auto;
-            filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.4));
+            width: 250px; 
+            filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.3));
             animation: playViolin 1.2s ease-in-out infinite;
+            transform-origin: bottom center;
         }
 
-        .interactive-section {
+        .birthday-text {
+            font-size: clamp(1.5em, 8vw, 3.5em);
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            margin-bottom: 20px;
             z-index: 100;
-            width: 100%;
-            min-height: 150px; /* Pasta alanı için sabit yer ayırır */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        /* Yeni mesaj başlangıçta gizli */
+        .final-message {
+            display: none;
+            font-size: clamp(1.8em, 9vw, 4em);
+            color: #00FFCC;
+            text-shadow: 0 0 20px #00FFCC;
+            z-index: 110;
+            animation: glow 2s ease-in-out infinite alternate;
         }
 
         @keyframes glow {
             from { text-shadow: 0 0 10px #fff, 0 0 20px #ffd700; }
-            to { text-shadow: 0 0 20px #fff, 0 0 35px #ffd700; }
+            to { text-shadow: 0 0 20px #fff, 0 0 40px #ffd700; }
         }
 
         @keyframes softZoom {
@@ -82,47 +71,23 @@
             100% { transform: rotate(-2deg); }
         }
 
+        /* Buton ve Pasta */
         #action-btn {
             padding: 15px 30px;
             font-size: 1.1em;
             background: #FFD700;
-            color: #000;
             border: none;
             border-radius: 50px;
             cursor: pointer;
+            z-index: 100;
             font-weight: bold;
-            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
-            transition: transform 0.2s;
         }
 
         .cake-container {
             display: none;
-            font-size: 60px;
+            font-size: 80px;
             cursor: pointer;
-        }
-
-        .instruction-text {
-            font-size: 14px;
-            color: #fff;
-            margin-top: 10px;
-            font-family: sans-serif;
-            opacity: 0.8;
-        }
-
-        .final-message {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: clamp(1.8em, 9vw, 4em);
-            color: #00FFCC;
-            text-shadow: 0 0 20px #00FFCC;
-            z-index: 200;
-            width: 90%;
-            background: rgba(0,0,0,0.5); /* Okunabilirlik için hafif arka plan */
-            padding: 10px;
-            border-radius: 10px;
+            z-index: 100;
         }
 
         canvas {
@@ -135,39 +100,28 @@
 </head>
 <body>
 
-    <div class="header-section">
-        <div class="birthday-text">İYİ Kİ DOĞDUN VİVALDİ!</div>
-    </div>
-    
-    <div class="character-section">
-        <div class="character-container">
-            <img src="keeman.png" class="main-img" onerror="this.alt='Vivaldi'">
-        </div>
+    <div class="character-container">
+        <img src="keeman.png" class="main-img" onerror="this.alt='Vivaldi Görseli'">
     </div>
 
-    <div class="interactive-section">
-        <button id="action-btn" onclick="showCake()">Pastayı Getir! 🎂</button>
-        
-        <div class="cake-container" id="cake" onclick="blowCandle()">
-            🎂
-            <div class="instruction-text">Üflemek için dokun!</div>
-        </div>
+    <div class="birthday-text" id="top-title">İYİ Kİ DOĞDUN VİVALDİ!</div>
+
+    <div class="final-message" id="final-msg">NİCE MUTLU SENELERE FATİHH HOCAM</div>
+
+    <button id="action-btn" onclick="showCake()">Pastayı Getir! 🎂</button>
+    
+    <div class="cake-container" id="cake" onclick="blowCandle()">
+        🎂
+        <p style="font-size: 16px; color: white; margin: 0;">(Üflemek için pastaya tıkla!)</p>
     </div>
 
-    <div class="final-message" id="msg">NİCE MUTLU SENELERE!</div>
-    
     <canvas id="canvas"></canvas>
 
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resize);
-        resize();
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
         let snowflakes = [];
         let confettis = [];
@@ -179,9 +133,15 @@
         }
 
         function blowCandle() {
-            document.getElementById('cake').innerHTML = "🍰<div class='instruction-text'>Dileğin tutuldu!</div>";
-            document.getElementById('msg').style.display = 'block';
+            // Üstteki başlığı gizle
+            document.getElementById('top-title').style.display = 'none';
+            // Pasta dilimine çevir
+            document.getElementById('cake').innerHTML = "🍰";
+            // Yeni mesajı göster
+            document.getElementById('final-msg').style.display = 'block';
+            
             isCelebrating = true;
+            // Konfeti fışkırt
             for(let i=0; i<100; i++) confettis.push(new Confetti());
         }
 
@@ -191,14 +151,14 @@
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * -canvas.height;
                 this.size = Math.random() * 2 + 1;
-                this.speed = Math.random() * 1 + 0.3;
+                this.speed = Math.random() * 1 + 0.5;
             }
             update() {
                 this.y += this.speed;
                 if (this.y > canvas.height) this.reset();
             }
             draw() {
-                ctx.fillStyle = "white";
+                ctx.fillStyle = "white"; // Kar taneleri beyaz
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
@@ -208,15 +168,13 @@
         class Confetti {
             constructor() {
                 this.x = Math.random() * canvas.width;
-                this.y = Math.random() * -20;
+                this.y = Math.random() * canvas.height;
                 this.size = Math.random() * 8 + 4;
                 this.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
-                this.speed = Math.random() * 3 + 2;
-                this.angle = Math.random() * 6.28;
+                this.speed = Math.random() * 4 + 2;
             }
             update() {
                 this.y += this.speed;
-                this.x += Math.sin(this.angle) * 1;
                 if (this.y > canvas.height) this.y = -20;
             }
             draw() {
@@ -225,17 +183,23 @@
             }
         }
 
-        for (let i = 0; i < 60; i++) snowflakes.push(new Snowflake());
+        for (let i = 0; i < 100; i++) snowflakes.push(new Snowflake());
 
         function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(10, 10, 10, 0.2)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
             snowflakes.forEach(s => { s.update(); s.draw(); });
+            
             if(isCelebrating) {
                 confettis.forEach(c => { c.update(); c.draw(); });
             }
+
             requestAnimationFrame(animate);
         }
+
         animate();
+        window.onresize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
     </script>
 </body>
 </html>
