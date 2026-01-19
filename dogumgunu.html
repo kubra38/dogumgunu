@@ -6,7 +6,7 @@
     <style>
         body {
             display: flex;
-            justify-content: center;
+            justify-content: flex-start; /* Üste yakınlaştırmak için */
             align-items: center;
             min-height: 100vh;
             margin: 0;
@@ -14,10 +14,11 @@
             overflow: hidden;
             font-family: 'Arial Black', sans-serif;
             flex-direction: column;
+            padding-top: 50px; /* Üstten boşluk */
         }
 
         .birthday-text {
-            font-size: 4.5em;
+            font-size: 3.5em;
             color: #FFD700;
             text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
             margin-bottom: 20px;
@@ -35,27 +36,62 @@
             z-index: 50;
             display: flex;
             justify-content: center;
-            /* Zoom etkisini buradan yönetiyoruz */
             animation: softZoom 10s ease-in-out infinite alternate;
         }
 
         .main-img {
-            width: 400px;
+            width: 300px; /* Biraz küçülttük ki pasta sığsın */
             filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.4));
-            /* Keman çalma sallantısı */
             animation: playViolin 1.2s ease-in-out infinite;
             transform-origin: bottom center;
         }
 
         @keyframes softZoom {
-            from { transform: scale(0.9); }
-            to { transform: scale(1.15); }
+            from { transform: scale(0.95); }
+            to { transform: scale(1.1); }
         }
 
         @keyframes playViolin {
             0% { transform: rotate(-1.5deg); }
             50% { transform: rotate(1.5deg) translateY(-5px); }
             100% { transform: rotate(-1.5deg); }
+        }
+
+        /* Pasta ve Buton Tasarımı */
+        #action-btn {
+            margin-top: 30px;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            background: #FFD700;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            transition: 0.3s;
+        }
+
+        #action-btn:hover { transform: scale(1.1); background: #fff; }
+
+        .cake-container {
+            display: none;
+            font-size: 80px;
+            cursor: pointer;
+            z-index: 100;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .final-message {
+            display: none;
+            font-size: 4em;
+            color: #00FFCC;
+            text-shadow: 0 0 20px #00FFCC;
+            z-index: 110;
+            position: absolute;
+            top: 50%;
+            text-align: center;
+            width: 100%;
         }
 
         canvas {
@@ -68,11 +104,20 @@
 </head>
 <body>
 
-    <div class="birthday-text">İYİ Kİ DOĞDUN VİVALDİ!</div>
+    <div class="birthday-text" id="main-title">İYİ Kİ DOĞDUN VİVALDİ!</div>
     
     <div class="character-container">
-        <img src="keeman.png" class="main-img" onerror="this.alt='keeman.png bekleniyor...'">
+        <img src="keeman.png" class="main-img" onerror="this.alt='Vivaldi Görseli'">
     </div>
+
+    <button id="action-btn" onclick="showCake()">Pastayı Getir! 🎂</button>
+    
+    <div class="cake-container" id="cake" onclick="blowCandle()">
+        🎂
+        <div style="font-size: 20px; color: white; text-align: center;">(Üflemek için pastaya tıkla!)</div>
+    </div>
+
+    <div class="final-message" id="msg">NİCE MUTLU SENELERE!</div>
     
     <canvas id="canvas"></canvas>
 
@@ -85,22 +130,35 @@
         let particles = [];
         let snowflakes = [];
         let confettis = [];
+        let isCelebrating = false;
+
+        function showCake() {
+            document.getElementById('action-btn').style.display = 'none';
+            document.getElementById('cake').style.display = 'block';
+        }
+
+        function blowCandle() {
+            document.getElementById('cake').innerHTML = "🍰"; // Pasta dilimine dönüşür (üflendi)
+            document.getElementById('msg').style.display = 'block';
+            isCelebrating = true;
+            // Konfeti patlaması yarat
+            for(let i=0; i<100; i++) confettis.push(new Confetti());
+        }
 
         class Snowflake {
             constructor() { this.reset(); }
             reset() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * -canvas.height;
-                this.size = Math.random() * 2 + 1;
+                this.size = Math.random() * 3 + 1;
                 this.speed = Math.random() * 1 + 0.5;
-                this.opacity = Math.random();
             }
             update() {
                 this.y += this.speed;
                 if (this.y > canvas.height) this.reset();
             }
             draw() {
-                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.fillStyle = "white"; // Kar tamamen beyaz yapıldı
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
@@ -110,20 +168,15 @@
         class Confetti {
             constructor() {
                 this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height - canvas.height;
-                this.size = Math.random() * 8 + 4;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 10 + 5;
                 this.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
-                this.speed = Math.random() * 2 + 3;
+                this.speed = Math.random() * 4 + 2;
                 this.rotation = Math.random() * 360;
-                this.rotationSpeed = Math.random() * 5;
             }
             update() {
                 this.y += this.speed;
-                this.rotation += this.rotationSpeed;
-                if (this.y > canvas.height) {
-                    this.y = -20;
-                    this.x = Math.random() * canvas.width;
-                }
+                if (this.y > canvas.height) this.y = -20;
             }
             draw() {
                 ctx.save();
@@ -135,47 +188,17 @@
             }
         }
 
-        class Firework {
-            constructor(x, y, color) {
-                this.x = x; this.y = y; this.color = color;
-                this.velocity = { x: Math.random() * 6 - 3, y: Math.random() * 6 - 3 };
-                this.alpha = 1;
-            }
-            draw() {
-                ctx.globalAlpha = this.alpha;
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            update() {
-                this.x += this.velocity.x;
-                this.y += this.velocity.y;
-                this.alpha -= 0.015;
-            }
-        }
-
-        for (let i = 0; i < 100; i++) snowflakes.push(new Snowflake());
-        for (let i = 0; i < 80; i++) confettis.push(new Confetti());
+        for (let i = 0; i < 150; i++) snowflakes.push(new Snowflake());
 
         function animate() {
             ctx.fillStyle = 'rgba(10, 10, 10, 0.2)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             snowflakes.forEach(s => { s.update(); s.draw(); });
-            confettis.forEach(c => { c.update(); c.draw(); });
-
-            if (Math.random() < 0.04) {
-                const x = Math.random() * canvas.width;
-                const y = Math.random() * (canvas.height/2);
-                const color = `hsl(${Math.random() * 360}, 100%, 60%)`;
-                for(let i=0; i<30; i++) particles.push(new Firework(x, y, color));
+            
+            if(isCelebrating) {
+                confettis.forEach(c => { c.update(); c.draw(); });
             }
-
-            particles.forEach((p, i) => {
-                if (p.alpha > 0) { p.update(); p.draw(); }
-                else { particles.splice(i, 1); }
-            });
 
             requestAnimationFrame(animate);
         }
